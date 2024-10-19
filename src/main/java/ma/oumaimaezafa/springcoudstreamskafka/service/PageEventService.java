@@ -60,7 +60,9 @@ public class PageEventService {
                   .map((k,v)->new KeyValue<>(v.getName(),0L))
                   .groupBy((k,v)->k, Grouped.with(Serdes.String(),Serdes.Long()))
                    //sur l'ensemble des enrg qui ont ete observes sans les le derniers 5 s
-                  .windowedBy(TimeWindows.of(Duration.ofMillis(5000)))
+                  .windowedBy(TimeWindows.of(Duration.ofMillis(500)))
+                  //les resultats d'une page sont stocker dans kTable dans un store nomme page-count
+                  //kafka streams enregistrer ces enrgis qui reprensete les derniers calculees
                   .count(Materialized.as("page-count"))
                   .toStream()
                   .map((k,v)->new KeyValue<>("=>"+k.window().startTime()+k.window().endTime()+k.key(),v));
